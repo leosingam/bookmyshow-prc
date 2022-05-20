@@ -1,0 +1,41 @@
+request:
+  host: "localhost"
+  port: "8086"
+  protocol: "HTTPS"
+  basepath: "/"
+  client_id: "5d6552c38a854acba13f4155afaef89a"
+  client_secret: "5825E991e0904C2CBB4097aE0D802f7E"
+
+listener:
+  host: "localhost"
+  port: "8085"
+  protocol: "HTTPS"
+  basepath: "/"
+  
+keystore:
+  client:
+    path: "clientkeystore.jks"
+    type: "JKS"
+    alias: "myclient"
+    keypassword: "password"
+    password: "password"
+  
+  server:
+    path: "serverkeystore.jks"
+    type: "JKS"
+    alias: "myserver"
+    keypassword: "password"
+    password: "password"
+    
+
+
+truststore:
+  client:
+    path: "clienttruststore.jks"
+    type: "JKS"
+    keypassword: "password"
+    
+  server:
+    path: "servertruststore.jks"
+    type: "JKS"
+    keypassword: "password"

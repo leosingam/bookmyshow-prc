@@ -1,0 +1,13 @@
+{
+  "sampleData": {
+    "b1cab12f-abfa-48bc-a5d0-91a257346529": {
+      "payload": "sample_data/json.json"
+    },
+    "b228cf9b-5338-4b05-b887-8bb4963cc3ec": {
+      "vars-strMovies": "sample_data/java_1.dwl"
+    },
+    "95311f98-123b-4325-bb17-34cad2196c9d": {
+      "payload": "sample_data/java.dwl"
+    }
+  }
+}

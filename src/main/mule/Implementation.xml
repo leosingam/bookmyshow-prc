@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<flow name="moviesListFlow" doc:id="dc7b070b-f3b5-46af-a983-ae6768fabbdf" >
+		<set-variable value='#[message.attributes.queryParams."movie"]' doc:name="setVariable" doc:id="adedc31f-5815-4510-a312-581517ba7e20" variableName="strMovies"/>
+		<http:request method="GET" doc:name="moviesListRequest" doc:id="37cb3c6b-0d2b-4508-b4ef-e1d20dfcf090" config-ref="HTTP_Request_prcs" path="/api/smovieslist/{movieName}" responseTimeout="600000">
+			<http:headers ><![CDATA[#[output application/json
+---
+{
+	"client_id" : "1",
+	"client_secret" : "1",
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"movieName" : vars.strMovies
+}]]]></http:uri-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="ee0d1100-d13b-4513-bfe2-ea7feee1bce2" >
+			<when expression="#[isEmpty(payload)]">
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+"message" : "The " ++ vars.strMovies as String default "" ++ " not available in BookMyShow"
+}]' doc:name="Set Payload" doc:id="b228cf9b-5338-4b05-b887-8bb4963cc3ec" />
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Transform Message" doc:id="34d39f2a-d67b-4da9-92eb-8c47bb319397" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="4915ce5e-591a-4316-bc23-500ec9eefaa4" />
+	</flow>
+	<flow name="bookTicketsFlow" doc:id="7ea82161-755a-47dd-8082-69a8c4cd601e" >
+		<set-variable value="#[payload.BookedTickets as Number default 0]" doc:name="setVariable" doc:id="97010220-5632-4fe4-be00-6c525f6439ad" variableName="ticketsCount" mimeType="application/json"/>
+		<choice doc:name="Choice" doc:id="edb294d2-250d-4ef3-8e25-262fb059ae11" >
+			<when expression="#[vars.ticketsCount&gt;4 and vars.ticketsCount&lt;10]">
+				<ee:transform doc:name="Transform Message" doc:id="95311f98-123b-4325-bb17-34cad2196c9d">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	MovieID: payload.MovieID,
+	MovieName: payload.MovieName,
+	Language: payload.Language,
+	TheatreName: payload.TheatreName,
+	TheatreID: payload.TheatreID,
+	TotalTickets: payload.TotalTickets,
+	BookedTickets: payload.BookedTickets,
+	Username: payload.Username,
+	BookingStatus: payload.BookingStatus,
+	Price: if ( payload.BookedTickets >4 ) payload.Price/1.25 else payload.Price
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="0ca15dcf-2a24-4ffa-9a17-28fc48f7ff81" />
+			</when>
+			<when expression="#[vars.ticketsCount&gt;=10]">
+				<ee:transform doc:name="Transform Message" doc:id="b1cab12f-abfa-48bc-a5d0-91a257346529" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+type Currency = String{format: "###.00"}
+---
+{
+	MovieID: payload.MovieID,
+	MovieName: payload.MovieName,
+	Language: payload.Language,
+	TheatreName: payload.TheatreName,
+	TheatreID: payload.TheatreID,
+	TotalTickets: payload.TotalTickets,
+	BookedTickets: payload.BookedTickets,
+	Username: payload.Username,
+	BookingStatus: payload.BookingStatus,
+	Price: if ( payload.BookedTickets >=10 ) payload.Price/2 else payload.Price
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="e3d8b30b-76b2-4e67-9522-baa270739573" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="b2b20271-27ed-41cf-8261-19fc8b890454">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="a348e837-8c92-48fa-8134-e1fcc9434c4b" />
+			</otherwise>
+		</choice>
+		<http:request method="POST" doc:name="Request" doc:id="91094c1a-3d19-473c-9888-86a178d9a700" config-ref="HTTP_Request_prcs" path="/api/sBookTickets" responseTimeout="600000">
+			<http:headers ><![CDATA[#[output application/json
+---
+{
+	"client_id" : p('request.client_id'),
+	"client_secret" : p('request.client_secret'),
+	"Accept" : p('request.accept'),
+	"Content-Type" : p('request.contentType')
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="528c6039-0dce-4c5d-a949-da71c39a1edb" />
+	</flow>
+	<flow name="ticketsBookedFlow" doc:id="2ea093c3-0f76-4519-845e-81c86cd0bf45" >
+		<set-variable value='#[message.attributes.queryParams."UserName"]' doc:name="setVariable" doc:id="d885dc80-eb24-4185-8598-1f1f2bdd77a8" variableName="strUserName"/>
+		<http:request method="GET" doc:name="Request" doc:id="2faa0910-0ef4-4eb3-b3fb-b2850b57e03f" config-ref="HTTP_Request_prcs" path="/api/sTicketBooked/{UserName}" responseTimeout="600000">
+			<http:headers ><![CDATA[#[output application/json
+---
+{
+	"client_id" : "1",
+	"client_secret" : "1",
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/json
+---
+{
+	"UserName" : vars.strUserName
+}]]]></http:uri-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="a2ec36db-bef2-4fa5-b68e-98bae6815af4" >
+			<when expression="#[isEmpty(payload)]">
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+"message" : "No history available for the user " ++ vars.strUserName as String default ""
+}]' doc:name="Set Payload" doc:id="2b214264-3050-43bf-b8fe-2450b8cf77b9" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="12686c3f-11ed-40ac-a53c-1e968d542c4d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="acbce205-3c1a-4e9d-8144-9b4170be9a03" />
+	</flow>
+	<flow name="eTicketsFlow" doc:id="6058623f-17dd-4660-a456-4accc3a5cb26" >
+		<set-variable value='#[attributes.queryParams."orderID" default 0]' doc:name="setVariable" doc:id="3ccf38c5-9c01-46ab-9f44-479f23e2d4e2" variableName="orderID" />
+		<set-variable value='#[attributes.queryParams.UserName]' doc:name="setVariable" doc:id="e9175247-3756-4672-b46d-46421790626d" variableName="strUserName"/>
+		<http:request method="GET" doc:name="Request" doc:id="82a2b40d-3968-4cf2-8eb5-43c74d9045e8" config-ref="HTTP_Request_prcs" path="/api/seTickets/{UserName}/{BookingID}" responseTimeout="600000">
+			<http:headers ><![CDATA[#[output application/json
+---
+{
+	"client_id" : "1",
+	"client_secret" : "1",
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/json
+---
+{
+	"UserName" : vars.strUserName,
+	"BookingID" : vars.orderID
+}]]]></http:uri-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="5a91632b-014d-4b2e-8ce6-e0016ef336dc" >
+			<when expression="#[isEmpty(payload)]">
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+"message" : "No e-Tickets are available for the user " ++ vars.strUserName as String default ""
+}]' doc:name="Set Payload" doc:id="cffe02cf-379a-458e-af66-59d5ea68f373" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="6dd0946a-3288-441e-98b4-bc5d2f34d58f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="09f56cf7-0636-451c-aaf7-ab5c3c3fe674" />
+	</flow>
+</mule>
