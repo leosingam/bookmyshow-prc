@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 	<http:request-config name="HTTP_Request_prcs" doc:name="HTTP Request configuration" doc:id="b321446e-b4bb-4d20-a755-4bbcc6eb9fc1" >
 		<http:request-connection protocol="${request.protocol}" host="${request.host}" port="${request.port}" connectionIdleTimeout="300000">
 			<tls:context >
-				<tls:trust-store path="${truststore.client.path}" password="${truststore.client.keypassword}" type="${truststore.client.type}" />
+				<tls:trust-store path="${truststore.client.path}" password="${truststore.client.keypassword}" type="${truststore.client.type}" insecure="true"/>
 			</tls:context>
 		</http:request-connection>
 	</http:request-config>
