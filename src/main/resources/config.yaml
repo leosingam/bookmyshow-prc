@@ -1,6 +1,6 @@
 request:
-  host: "localhost"
-  port: "8086"
+  host: "sys-bms-api.us-e2.cloudhub.io"
+  port: "8082"
   protocol: "HTTPS"
   basepath: "/"
   client_id: "5d6552c38a854acba13f4155afaef89a"
