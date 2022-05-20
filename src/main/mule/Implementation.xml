@@ -64,7 +64,7 @@ output application/json
 	BookedTickets: payload.BookedTickets,
 	Username: payload.Username,
 	BookingStatus: payload.BookingStatus,
-	Price: if ( payload.BookedTickets >4 ) payload.Price/1.25 else payload.Price
+	Price: round(payload.Price/1.25) as Number
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
@@ -87,7 +87,7 @@ type Currency = String{format: "###.00"}
 	BookedTickets: payload.BookedTickets,
 	Username: payload.Username,
 	BookingStatus: payload.BookingStatus,
-	Price: if ( payload.BookedTickets >=10 ) payload.Price/2 else payload.Price
+	Price: round(payload.Price/2) as Number
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
