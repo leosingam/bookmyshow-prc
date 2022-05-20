@@ -6,9 +6,9 @@ request:
   client_id: "5d6552c38a854acba13f4155afaef89a"
   client_secret: "5825E991e0904C2CBB4097aE0D802f7E"
 
-listener:
-  host: "localhost"
-  port: "8085"
+https:
+  host: "0.0.0.0"
+  port: "8082"
   protocol: "HTTPS"
   basepath: "/"
   
