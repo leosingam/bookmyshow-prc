@@ -30,10 +30,10 @@ output application/json
 ---
 {
 "message" : "The " ++ vars.strMovies as String default "" ++ " not available in BookMyShow"
-}]' doc:name="Set Payload" doc:id="b228cf9b-5338-4b05-b887-8bb4963cc3ec" />
+}]' doc:name="setMovieError" doc:id="b228cf9b-5338-4b05-b887-8bb4963cc3ec" />
 			</when>
 			<otherwise>
-				<ee:transform doc:name="Transform Message" doc:id="34d39f2a-d67b-4da9-92eb-8c47bb319397" >
+				<ee:transform doc:name="moviePayload" doc:id="34d39f2a-d67b-4da9-92eb-8c47bb319397" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -43,13 +43,13 @@ payload]]></ee:set-payload>
 				</ee:transform>
 			</otherwise>
 		</choice>
-		<logger level="INFO" doc:name="Logger" doc:id="4915ce5e-591a-4316-bc23-500ec9eefaa4" />
+		<logger level="INFO" doc:name="Logger" doc:id="4915ce5e-591a-4316-bc23-500ec9eefaa4" message='#["End of process API - Movie List"]'/>
 	</flow>
 	<flow name="bookTicketsFlow" doc:id="7ea82161-755a-47dd-8082-69a8c4cd601e" >
 		<set-variable value="#[payload.BookedTickets as Number default 0]" doc:name="setVariable" doc:id="97010220-5632-4fe4-be00-6c525f6439ad" variableName="ticketsCount" mimeType="application/json"/>
 		<choice doc:name="Choice" doc:id="edb294d2-250d-4ef3-8e25-262fb059ae11" >
 			<when expression="#[vars.ticketsCount&gt;4 and vars.ticketsCount&lt;10]">
-				<ee:transform doc:name="Transform Message" doc:id="95311f98-123b-4325-bb17-34cad2196c9d">
+				<ee:transform doc:name="discountUpdate-20" doc:id="95311f98-123b-4325-bb17-34cad2196c9d">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -68,10 +68,10 @@ output application/json
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<logger level="INFO" doc:name="Logger" doc:id="0ca15dcf-2a24-4ffa-9a17-28fc48f7ff81" />
+				<logger level="INFO" doc:name="Logger" doc:id="0ca15dcf-2a24-4ffa-9a17-28fc48f7ff81" message='#["Ticket count is less than 10"]'/>
 			</when>
 			<when expression="#[vars.ticketsCount&gt;=10]">
-				<ee:transform doc:name="Transform Message" doc:id="b1cab12f-abfa-48bc-a5d0-91a257346529" >
+				<ee:transform doc:name="discountUpdate-20" doc:id="b1cab12f-abfa-48bc-a5d0-91a257346529" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -91,10 +91,10 @@ type Currency = String{format: "###.00"}
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<logger level="INFO" doc:name="Logger" doc:id="e3d8b30b-76b2-4e67-9522-baa270739573" />
+				<logger level="INFO" doc:name="Logger" doc:id="e3d8b30b-76b2-4e67-9522-baa270739573" message='#["Ticket count is more than 9"]'/>
 			</when>
 			<otherwise >
-				<ee:transform doc:name="Transform Message" doc:id="b2b20271-27ed-41cf-8261-19fc8b890454">
+				<ee:transform doc:name="noDiscount" doc:id="b2b20271-27ed-41cf-8261-19fc8b890454">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -102,7 +102,7 @@ output application/json
 payload]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<logger level="INFO" doc:name="Logger" doc:id="a348e837-8c92-48fa-8134-e1fcc9434c4b" />
+				<logger level="INFO" doc:name="Logger" doc:id="a348e837-8c92-48fa-8134-e1fcc9434c4b" message='#["Ticket count is less than 4"]'/>
 			</otherwise>
 		</choice>
 		<http:request method="POST" doc:name="Request" doc:id="91094c1a-3d19-473c-9888-86a178d9a700" config-ref="HTTP_Request_prcs" path="/api/sBookTickets" responseTimeout="600000">
@@ -115,7 +115,7 @@ payload]]></ee:set-payload>
 	"Content-Type" : p('request.contentType')
 }]]]></http:headers>
 		</http:request>
-		<logger level="INFO" doc:name="Logger" doc:id="528c6039-0dce-4c5d-a949-da71c39a1edb" />
+		<logger level="INFO" doc:name="Logger" doc:id="528c6039-0dce-4c5d-a949-da71c39a1edb" message='#["End of process API - Book Tickets"]'/>
 	</flow>
 	<flow name="ticketsBookedFlow" doc:id="2ea093c3-0f76-4519-845e-81c86cd0bf45" >
 		<set-variable value='#[message.attributes.queryParams."UserName"]' doc:name="setVariable" doc:id="d885dc80-eb24-4185-8598-1f1f2bdd77a8" variableName="strUserName"/>
@@ -141,10 +141,10 @@ output application/json
 ---
 {
 "message" : "No history available for the user " ++ vars.strUserName as String default ""
-}]' doc:name="Set Payload" doc:id="2b214264-3050-43bf-b8fe-2450b8cf77b9" />
+}]' doc:name="setUserHistoryError" doc:id="2b214264-3050-43bf-b8fe-2450b8cf77b9" />
 			</when>
 			<otherwise >
-				<ee:transform doc:name="Transform Message" doc:id="12686c3f-11ed-40ac-a53c-1e968d542c4d" >
+				<ee:transform doc:name="eTicketsPayload" doc:id="12686c3f-11ed-40ac-a53c-1e968d542c4d" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -154,7 +154,7 @@ payload]]></ee:set-payload>
 				</ee:transform>
 			</otherwise>
 		</choice>
-		<logger level="INFO" doc:name="Logger" doc:id="acbce205-3c1a-4e9d-8144-9b4170be9a03" />
+		<logger level="INFO" doc:name="Logger" doc:id="acbce205-3c1a-4e9d-8144-9b4170be9a03" message='#["End of process API - User history Flow"]'/>
 	</flow>
 	<flow name="eTicketsFlow" doc:id="6058623f-17dd-4660-a456-4accc3a5cb26" >
 		<set-variable value='#[attributes.queryParams."orderID" default 0]' doc:name="setVariable" doc:id="3ccf38c5-9c01-46ab-9f44-479f23e2d4e2" variableName="orderID" />
@@ -182,10 +182,10 @@ output application/json
 ---
 {
 "message" : "No e-Tickets are available for the user " ++ vars.strUserName as String default ""
-}]' doc:name="Set Payload" doc:id="cffe02cf-379a-458e-af66-59d5ea68f373" />
+}]' doc:name="seteTicketsError" doc:id="cffe02cf-379a-458e-af66-59d5ea68f373" />
 			</when>
 			<otherwise >
-				<ee:transform doc:name="Transform Message" doc:id="6dd0946a-3288-441e-98b4-bc5d2f34d58f" >
+				<ee:transform doc:name="eTicketsPayload" doc:id="6dd0946a-3288-441e-98b4-bc5d2f34d58f" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -195,6 +195,6 @@ payload]]></ee:set-payload>
 				</ee:transform>
 			</otherwise>
 		</choice>
-		<logger level="INFO" doc:name="Logger" doc:id="09f56cf7-0636-451c-aaf7-ab5c3c3fe674" />
+		<logger level="INFO" doc:name="Logger" doc:id="09f56cf7-0636-451c-aaf7-ab5c3c3fe674" message='#["End of process API - return eTickets"]'/>
 	</flow>
 </mule>
