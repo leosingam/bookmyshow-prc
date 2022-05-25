@@ -8,7 +8,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<flow name="moviesListFlow" doc:id="dc7b070b-f3b5-46af-a983-ae6768fabbdf" >
 		<set-variable value='#[message.attributes.queryParams."movie"]' doc:name="setVariable" doc:id="adedc31f-5815-4510-a312-581517ba7e20" variableName="strMovies"/>
-		<http:request method="GET" doc:name="moviesListRequest" doc:id="37cb3c6b-0d2b-4508-b4ef-e1d20dfcf090" config-ref="HTTP_Request_prcs" path="/api/smovieslist/{movieName}" responseTimeout="600000">
+		<http:request method="GET" doc:name="moviesListRequest" doc:id="37cb3c6b-0d2b-4508-b4ef-e1d20dfcf090" config-ref="HTTP_Request_prcs" path="/api/smovieslist" responseTimeout="600000">
 			<http:headers ><![CDATA[#[output application/json
 ---
 {
@@ -22,6 +22,11 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 {
 	"movieName" : vars.strMovies
 }]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"movieName" : vars.strMovies
+}]]]></http:query-params>
 		</http:request>
 		<choice doc:name="Choice" doc:id="ee0d1100-d13b-4513-bfe2-ea7feee1bce2" >
 			<when expression="#[isEmpty(payload)]">
